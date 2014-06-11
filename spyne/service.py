@@ -1,4 +1,3 @@
-
 #
 # spyne - Copyright (C) Spyne contributors.
 #
@@ -21,6 +20,7 @@
 This module contains the :class:`ServiceBase` class and its helper objects.
 """
 
+import itertools
 import logging
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class ServiceBaseMeta(type):
         super(ServiceBaseMeta, self).__init__(cls_name, cls_bases, cls_dict)
 
         self.__has_aux_methods = self.__aux__ is not None
-        self.public_methods = {}
+        self.public_methods = dict(**getattr(self, 'public_methods', {}))
         self.event_manager = EventManager(self,
                                       self.__get_base_event_handlers(cls_bases))
 

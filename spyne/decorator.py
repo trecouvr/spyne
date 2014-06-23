@@ -44,13 +44,15 @@ from spyne.const import add_request_suffix
 
 
 def _produce_input_message(f, params, kparams, in_message_name,
-                           in_variable_names, no_ctx, no_self, args):
+                           in_variable_names, no_ctx, no_self, no_cls, args):
     _body_style = _validate_body_style(kparams)
 
     arg_start = 0
     if no_ctx is False:
         arg_start += 1
     if no_self is False:
+        arg_start += 1
+    if no_cls is False:
         arg_start += 1
 
     if args is None:
@@ -259,6 +261,7 @@ def rpc(*params, **kparams):
             _when = kparams.get("_when", None)
             _service_class = kparams.get("_service_class", None)
             _href = kparams.get("_href", None)
+            _no_cls = kparams.get("_no_cls", True)
 
             if _no_self:
                 from spyne.model import SelfReference
@@ -293,7 +296,7 @@ def rpc(*params, **kparams):
             _in_variable_names = kparams.get('_in_variable_names', {})
 
             in_message = _produce_input_message(f, params, kparams,
-                 _in_message_name, _in_variable_names, _no_ctx, _no_self, _args)
+                 _in_message_name, _in_variable_names, _no_ctx, _no_self, _no_cls, _args)
 
             _out_message_name_override = not ('_out_message_name' in kparams)
             out_message = _produce_output_message(function_name, kparams)
@@ -322,7 +325,7 @@ def rpc(*params, **kparams):
                 port_type=_port_type, no_ctx=_no_ctx, udp=_udp,
                 class_key=function_name, aux=_aux, patterns=_patterns,
                 body_style=body_style, args=_args,
-                operation_name=_operation_name, no_self=_no_self,
+                operation_name=_operation_name, no_self=_no_self, no_cls=_no_cls,
                 translations=_translations, when=_when,
                 in_message_name_override=_in_message_name_override,
                 out_message_name_override=_out_message_name_override,

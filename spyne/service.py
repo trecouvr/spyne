@@ -20,7 +20,7 @@
 This module contains the :class:`ServiceBase` class and its helper objects.
 """
 
-import itertools
+import copy
 import logging
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,8 @@ class ServiceBaseMeta(type):
         super(ServiceBaseMeta, self).__init__(cls_name, cls_bases, cls_dict)
 
         self.__has_aux_methods = self.__aux__ is not None
-        self.public_methods = dict(**getattr(self, 'public_methods', {}))
+        parent_public_methods = getattr(self, 'public_methods', {})
+        self.public_methods = dict((k, copy.copy(v)) for k,v in parent_public_methods.items())
         self.event_manager = EventManager(self,
                                       self.__get_base_event_handlers(cls_bases))
 
@@ -47,11 +48,10 @@ class ServiceBaseMeta(type):
                 descriptor = v(_default_function_name=k)
 
                 # these two lines are needed for staticmethod wrapping to work
-                setattr(self, k, staticmethod(descriptor.function))
-                descriptor.reset_function(getattr(self, k))
-
-                getattr(self, k).descriptor = descriptor
-                descriptor.service_class = self
+                if descriptor.no_cls:
+                    setattr(self, k, staticmethod(descriptor.function))
+                else:
+                    setattr(self, k, classmethod(descriptor.function))
 
                 self.public_methods[k] = descriptor
                 if descriptor.aux is None:
@@ -60,6 +60,10 @@ class ServiceBaseMeta(type):
                             "auxiliary methods in a single service definition.")
                 else:
                     self.__has_aux_methods = True
+
+        for method_name, descriptor in self.public_methods.items():
+            descriptor.reset_function(getattr(self, method_name))
+            descriptor.service_class = self
 
     def __get_base_event_handlers(self, cls_bases):
         handlers = {}

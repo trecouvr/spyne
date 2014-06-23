@@ -339,7 +339,7 @@ class MethodDescriptor(object):
                  aux=None, patterns=None, body_style=None, args=None,
                  operation_name=None, no_self=None, translations=None, when=None,
                  in_message_name_override=True, out_message_name_override=True,
-                 service_class=None, href=None):
+                 service_class=None, href=None, no_cls=None):
 
         self.__real_function = function
         """The original callable for the user code."""
@@ -435,6 +435,9 @@ class MethodDescriptor(object):
         # FIXME: docstring yo.
         self.no_self = no_self
         """FIXME: docstring yo."""
+
+        self.no_cls = no_cls
+        """Does the function receive a cls argument"""
 
         self.service_class = service_class
         """The ServiceBase subclass the method belongs to, if there's any."""

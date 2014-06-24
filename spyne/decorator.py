@@ -363,3 +363,16 @@ def srpc(*params, **kparams):
 def mrpc(*params, **kparams):
     kparams["_no_self"] = False
     return rpc(*params, **kparams)
+
+
+def classrpc(*params, **kparams):
+    """Method decorator to tag a method as a remote procedure call. See
+    :func:`spyne.decorator.rpc` for detailed information.
+
+    The initial "class" stands for "classmethod". That means the method
+    will be wrapped in the ``classmethod`` decorator and will receive
+    the classic `cls` variable as first argument.
+    """
+
+    kparams["_no_cls"] = False
+    return rpc(*params, **kparams)
